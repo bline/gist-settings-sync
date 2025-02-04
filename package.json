@@ -1,0 +1,130 @@
+{
+  "name": "settings-sync",
+  "displayName": "Settings Sync",
+  "description": "Sync settings up and down to a GitHub Gist (supports code–server and VS Code).",
+  "version": "0.0.1",
+  "publisher": "ScottBeck",
+  "repository": {
+    "type": "GitHub",
+    "url": "https://github.com/bline/gist-settings-sync.git"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.syncUp",
+    "onCommand:extension.syncDown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.syncUp",
+        "title": "Sync Settings Up"
+      },
+      {
+        "command": "extension.syncDown",
+        "title": "Sync Settings Down"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "extension.syncUp",
+        "key": "ctrl+alt+u",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.syncDown",
+        "key": "ctrl+alt+d",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Settings Sync Configuration",
+      "properties": {
+        "settingsSync.gistId": {
+          "type": "string",
+          "default": "",
+          "description": "The GitHub Gist ID to sync settings to/from."
+        },
+        "settingsSync.cron": {
+          "type": "string",
+          "default": "",
+          "description": "Cron expression for automatic sync (e.g. '0 * * * *' for every hour). Leave empty to disable."
+        },
+        "settingsSync.includeSettings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include user settings in sync."
+        },
+        "settingsSync.includeKeybindings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include keyboard shortcuts in sync."
+        },
+        "settingsSync.includeSnippets": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include user snippets in sync."
+        },
+        "settingsSync.includeTasks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include user tasks in sync."
+        },
+        "settingsSync.includeUIState": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include UI state in sync."
+        },
+        "settingsSync.includeProfiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include profiles in sync."
+        },
+        "settingsSync.includeExtensions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include list of extensions in sync and auto–install missing ones."
+        },
+        "settingsSync.userDataDir": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the user data directory (e.g. where settings.json is stored). Leave empty for default."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "rm -f out/extension.js && esbuild src/extension.ts --bundle --platform=node --external:vscode --outfile=out/extension.js",
+    "package": "vsce package --no-yarn",
+    "watch": "esbuild src/extension.ts --bundle --platform=node --external:vscode --outfile=out/extension.js --watch",
+    "test": "mocha --recursive"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.0.0",
+    "@types/node-fetch": "^2.6.2",
+    "@typescript-eslint/eslint-plugin": "^8.23.0",
+    "@typescript-eslint/parser": "^8.23.0",
+    "@vscode/vsce": "^3.2.2",
+    "chai": "^4.3.0",
+    "cron": "^2.4.4",
+    "esbuild": "^0.24.2",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-jsonc": "^2.19.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "mocha": "^10.0.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-packagejson": "^2.5.8",
+    "typescript": "^4.9.0",
+    "vscode": "^1.1.37"
+  }
+}
