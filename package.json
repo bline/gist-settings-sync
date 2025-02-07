@@ -15,8 +15,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.syncUp",
-    "onCommand:extension.syncDown"
+    "onWindowFocus"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -46,63 +45,68 @@
       "type": "object",
       "title": "Settings Sync Configuration",
       "properties": {
-        "settingsSync.gistId": {
+        "gistSettingsSync.gistId": {
           "type": "string",
           "default": "",
           "description": "The GitHub Gist ID to sync settings to/from."
         },
-        "settingsSync.cron": {
+        "gistSettingsSync.cron": {
           "type": "string",
           "default": "",
           "description": "Cron expression for automatic sync (e.g. '0 * * * *' for every hour). Leave empty to disable."
         },
-        "settingsSync.includeSettings": {
+        "gistSettingsSync.includeSettings": {
           "type": "boolean",
           "default": true,
           "description": "Include user settings in sync."
         },
-        "settingsSync.includeKeybindings": {
+        "gistSettingsSync.includeKeybindings": {
           "type": "boolean",
           "default": true,
           "description": "Include keyboard shortcuts in sync."
         },
-        "settingsSync.includeSnippets": {
+        "gistSettingsSync.includeSnippets": {
           "type": "boolean",
           "default": true,
           "description": "Include user snippets in sync."
         },
-        "settingsSync.includeTasks": {
+        "gistSettingsSync.includeTasks": {
           "type": "boolean",
           "default": true,
           "description": "Include user tasks in sync."
         },
-        "settingsSync.includeUIState": {
+        "gistSettingsSync.includeUIState": {
           "type": "boolean",
           "default": true,
           "description": "Include UI state in sync."
         },
-        "settingsSync.includeProfiles": {
+        "gistSettingsSync.includeProfiles": {
           "type": "boolean",
           "default": true,
           "description": "Include profiles in sync."
         },
-        "settingsSync.includeExtensions": {
+        "gistSettingsSync.includeExtensions": {
           "type": "boolean",
           "default": true,
           "description": "Include list of extensions in sync and auto–install missing ones."
         },
-        "settingsSync.userDataDir": {
+        "gistSettingsSync.userDataDir": {
           "type": "string",
           "default": "",
           "description": "Path to the user data directory (e.g. where settings.json is stored). Leave empty for default."
+        },
+        "gistSettingsSync.uiStateSyncInterval": {
+          "type": "number",
+          "default": "10",
+          "description": "The number of minutes between UI syncs in code-server. Code Server stores UI State in IndexedDB in the frontend. This is how often we sync that data to the backend."
         }
       }
     }
   },
   "scripts": {
-    "build": "rm -f out/extension.js && esbuild src/extension.ts --bundle --platform=node --external:vscode --outfile=out/extension.js",
+    "build": "rm -f out/extension.js && esbuild src/extension.ts --bundle --platform=node --external:vscode --external:http --outfile=out/extension.js",
     "package": "vsce package --no-yarn",
-    "watch": "esbuild src/extension.ts --bundle --platform=node --external:vscode --outfile=out/extension.js --watch",
+    "watch": "esbuild src/extension.ts --bundle --platform=node --external:vscode --external:http --outfile=out/extension.js --watch",
     "test": "mocha --recursive"
   },
   "devDependencies": {
@@ -111,6 +115,7 @@
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.0.0",
     "@types/node-fetch": "^2.6.2",
+    "@types/vscode": "^1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.23.0",
     "@typescript-eslint/parser": "^8.23.0",
     "@vscode/vsce": "^3.2.2",
@@ -124,7 +129,6 @@
     "mocha": "^10.0.0",
     "prettier": "^3.4.2",
     "prettier-plugin-packagejson": "^2.5.8",
-    "typescript": "^4.9.0",
-    "vscode": "^1.1.37"
+    "typescript": "^4.9.0"
   }
 }
