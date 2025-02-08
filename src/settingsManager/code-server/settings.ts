@@ -2,10 +2,20 @@ import path from 'path';
 import { getUserDataDir } from '@/config';
 import { readFileIfExists, writeFileEnsureDir } from '@/fileUtils';
 import { SettingsManagerBase } from '@/settingsManager/base';
+import fs from 'fs'
+import vscode from 'vscode'
 
 export class CodeServerSettings extends SettingsManagerBase {
   protected get fileNames(): string[] {
-    return ['settings.json']
+    const files = []
+    files.push('settings.json')
+    vscode.workspace.workspaceFolders?.forEach((folder) => {
+      const settingsPath = path.join(folder.uri.fsPath, '.vscode', 'settings.json')
+      if (fs.existsSync(settingsPath)) {
+        files.push(`workspace-${folder.name}-settings.json`)
+      }
+    })
+    return files
   }
 }
 /**

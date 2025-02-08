@@ -1,2 +1,4 @@
 
-export * as settings from "./settings"
+import { CodeServerSettings } from "./settings"
+
+export const codeServerSettings = new CodeServerSettings()
