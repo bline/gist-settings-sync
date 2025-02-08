@@ -100,15 +100,23 @@
           "default": "10",
           "description": "The number of minutes between UI syncs in code-server. Code Server stores UI State in IndexedDB in the frontend. This is how often we sync that data to the backend."
         },
-        "gistSettingsSync.syncUpMetaChackAction": {
+        "gistSettingsSync.syncUpMetaCheckAction": {
           "type": "string",
-          "enum": ["ask", "sync", "canel"],
+          "enum": [
+            "ask",
+            "sync",
+            "canel"
+          ],
           "default": "ask",
           "description": "What to do when syncing up and the meta information for the current configuration conflicts with what is stored in the Gist."
         },
-        "gistSettingsSync.syncDownMetaChackAction": {
+        "gistSettingsSync.syncDownMetaCheckAction": {
           "type": "string",
-          "enum": ["ask", "sync", "canel"],
+          "enum": [
+            "ask",
+            "sync",
+            "canel"
+          ],
           "default": "ask",
           "description": "What to do when syncing down and the meta information for the current configuration conflicts with what is stored in the Gist."
         }
@@ -124,6 +132,7 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/chai": "^4.3.0",
+    "@types/jest": "^29.5.14",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.19.75",
     "@types/node-fetch": "^2.6.2",
@@ -138,9 +147,13 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-jsonc": "^2.19.1",
     "eslint-plugin-prettier": "^5.2.3",
+    "jest": "^29.7.0",
+    "jest-mock-vscode": "^4.0.5",
     "mocha": "^10.0.0",
     "prettier": "^3.4.2",
     "prettier-plugin-packagejson": "^2.5.8",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "^4.9.0"
   }
 }

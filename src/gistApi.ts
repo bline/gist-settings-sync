@@ -1,6 +1,6 @@
 import { isCodeServer } from './globals'
 import { getConfig, SyncConfig } from './config'
-import vscode from './vscode'
+import vscode from './vscodeUtils'
 
 export interface GistFile {
   filename: string
@@ -75,8 +75,9 @@ type CheckMetaSettingName = 'syncDownMetaCheckAction' | 'syncUpMetaCheckAction'
  * @returns Promise<boolean>
  */
 export async function checkMeta(meta: GistFile, settingName: CheckMetaSettingName): Promise<boolean> {
+  const config = getConfig()
   const settings = vscode.workspace.getConfiguration('gistSettingsSync')
-  const metaAction = settings.get<string>(settingName, 'ask')
+  const metaAction = config[settingName]
   const metaContent = await getGistFileContent(meta)
   const remoteMeta = JSON.parse(metaContent) as Meta
   const localVscodeVersion = vscode.version

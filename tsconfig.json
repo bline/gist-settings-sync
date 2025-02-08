@@ -5,16 +5,20 @@
     "lib": ["es2019", "DOM"],
     "outDir": "out",
     "rootDir": "src",
+    "baseUrl": "src",
     "strict": true,
     "noImplicitAny": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "sourceMap": true,
-    "types": ["@types/vscode", "@types/node"]
+    "types": ["@types/vscode", "@types/node"],
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "exclude": [
     "node_modules",
     ".vscode-test",
-    "test"
+    "tests"
   ]
 }

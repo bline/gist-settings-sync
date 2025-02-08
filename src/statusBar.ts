@@ -1,4 +1,4 @@
-import vscode from "./vscode";
+import vscode from "./vscodeUtils";
 
 let _statusBarItem: vscode.StatusBarItem | undefined
 

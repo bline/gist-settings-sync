@@ -1,3 +1,3 @@
-import vscode from "./vscode";
+import vscode from "./vscodeUtils";
 
 export const isCodeServer: boolean = vscode.env.appName.toLowerCase().includes('code-server')

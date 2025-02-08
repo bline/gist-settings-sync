@@ -3,7 +3,7 @@ import { disposeStatusBarItem, getStatusBarItem, lastError } from './statusBar'
 import { getConfig, SyncConfig } from './config'
 import { disposeFrontendPanel, initFrontendWebview } from './webview'
 import { isCodeServer } from './globals'
-import vscode from './vscode'
+import vscode from './vscodeUtils'
 
 /**
  * Called when the extension is activated.

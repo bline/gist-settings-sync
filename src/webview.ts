@@ -2,7 +2,7 @@ import { getConfig, getUserDataDir, SyncConfig } from './config'
 import { getStatusBarItem } from './statusBar'
 import path from 'path'
 import { writeFileEnsureDir } from './fileUtils'
-import vscode from './vscode'
+import vscode from './vscodeUtils'
 
 
 export interface WebviewMessage {
@@ -20,7 +20,9 @@ let _frontendPanel: vscode.WebviewPanel | undefined
  * to the backend on login and periodically. It also implements a setUIState function
  * that updates each database’s object stores with the provided new state.
  *
- * The sync interval (in milliseconds) is injected into the page.
+ * @param context vscode context
+ * @param syncIntervalMillis The sync interval (in milliseconds) is injected into the page
+ * @returns Promise<string> The html for the webview including the frontend javascript
  */
 export async function getWebviewContent(
   context: vscode.ExtensionContext,
@@ -72,6 +74,9 @@ export function disposeFrontendPanel(): void {
  * Initializes the hidden frontend webview (only for code–server).
  * This webview will periodically extract the UI state from IndexedDB and send it
  * to the backend. The sync interval is based on the configuration.
+ * 
+ * @param context The vscode context
+ * @returns Promise<void>
  */
 export async function initFrontendWebview(context: vscode.ExtensionContext): Promise<void> {
   if (_frontendPanel) {

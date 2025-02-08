@@ -1,20 +1,41 @@
 import { isCodeServer } from './globals'
 import path from 'path'
 import * as os from 'os'
-import vscode from './vscode'
+import vscode from './vscodeUtils'
+
+export type MetaCheckAction = 'ask' | 'sync' | 'cancel'
 
 export interface SyncConfig {
+  // The GitHub Gist ID to sync settings to/from.
   gistId: string
+  // Cron expression for automatic sync (e.g. '0 * * * *' for every hour). Leave empty to disable.
   cron: string
+  // Include user settings in sync.
   includeSettings: boolean
+  // Include keyboard shortcuts in sync.
   includeKeybindings: boolean
+  // Include user snippets in sync.
   includeSnippets: boolean
+  // Include user tasks in sync.
   includeTasks: boolean
+  // Include UI state in sync.
   includeUIState: boolean
+  // Include profiles in sync.
   includeProfiles: boolean
+  // Include list of extensions in sync and auto–install missing ones.
   includeExtensions: boolean
+  // Path to the user data directory (e.g. where settings.json is stored). Leave empty for default.
   userDataDir: string
+  // The number of minutes between UI syncs in code-server. Code Server stores UI State in IndexedDB
+  // in the frontend. This is how often we sync that data to the backend.
+  // Only used if `includeUIState` is enabled and on code-server
   uiStateSyncInterval: number
+  // What to do when syncing up and the meta information for the current configuration conflicts
+  // with what is stored in the Gist.
+  syncUpMetaCheckAction: MetaCheckAction
+  // What to do when syncing down and the meta information for the current configuration conflicts
+  // with what is stored in the Gist.
+  syncDownMetaCheckAction: MetaCheckAction
 }
 
 
@@ -34,7 +55,9 @@ export function getConfig(): SyncConfig {
     includeProfiles: config.get<boolean>('includeProfiles', true),
     includeExtensions: config.get<boolean>('includeExtensions', true),
     userDataDir: config.get<string>('userDataDir', ''),
-    uiStateSyncInterval: config.get<number>('uiStateSyncInterval', 10)
+    uiStateSyncInterval: config.get<number>('uiStateSyncInterval', 10),
+    syncUpMetaCheckAction: config.get<string>('syncUpMetaCheckAction', 'ask') as MetaCheckAction,
+    syncDownMetaCheckAction: config.get<string>('syncDownMetaCheckAction', 'ask') as MetaCheckAction
   }
 }
 

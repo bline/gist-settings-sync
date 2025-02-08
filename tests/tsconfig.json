@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..", // Allow Jest to access both src and tests
+    "types": ["@types/jest"], // Include Jest types
+    "esModuleInterop": true
+  },
+  "include": ["../src/**/*", "../tests/**/*"], // Include tests for Jest only
+  "exclude": ["dist", "node_modules"] // Prevent unnecessary files in Jest
+}

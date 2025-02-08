@@ -3,9 +3,10 @@ import { getConfig, getUserDataDir, SyncConfig } from './config'
 import { checkMeta, fetchGists, getGistFileContent, GistFile, Meta, storeGists } from './gistApi'
 import path from 'path'
 import { fs, readFileIfExists, readSnippets, writeFileEnsureDir } from './fileUtils'
-import vscode, { getInstalledExtensions } from './vscode'
+import vscode, { getInstalledExtensions } from './vscodeUtils'
 import { getFrontendPanel, initFrontendWebview } from './webview'
 import { isCodeServer } from './globals'
+import settingsManager from '@/settingsManager'
 
 /**
  * The Sync Up command: Reads the selected configuration files, builds a payload,
@@ -97,8 +98,7 @@ export async function syncDown(context: vscode.ExtensionContext): Promise<void> 
     }
 
     if (config.includeSettings && files['settings.json']) {
-      const settingsPath: string = path.join(userDataDir, 'settings.json')
-      await writeFileEnsureDir(settingsPath, await getGistFileContent(files['settings.json']))
+      settingsManager.settings.store(await getGistFileContent(files['settings.json']))
     }
     if (config.includeKeybindings && files['keybindings.json']) {
       const keybindingsPath: string = path.join(userDataDir, 'keybindings.json')

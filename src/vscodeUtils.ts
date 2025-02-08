@@ -1,6 +1,4 @@
-import * as vscode from 'vscode'
-
-export default vscode
+import vscode from 'vscode'
 
 /**
  * Returns the list of installed (non–builtin) extension IDs.
