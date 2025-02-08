@@ -99,6 +99,18 @@
           "type": "number",
           "default": "10",
           "description": "The number of minutes between UI syncs in code-server. Code Server stores UI State in IndexedDB in the frontend. This is how often we sync that data to the backend."
+        },
+        "gistSettingsSync.syncUpMetaChackAction": {
+          "type": "string",
+          "enum": ["ask", "sync", "canel"],
+          "default": "ask",
+          "description": "What to do when syncing up and the meta information for the current configuration conflicts with what is stored in the Gist."
+        },
+        "gistSettingsSync.syncDownMetaChackAction": {
+          "type": "string",
+          "enum": ["ask", "sync", "canel"],
+          "default": "ask",
+          "description": "What to do when syncing down and the meta information for the current configuration conflicts with what is stored in the Gist."
         }
       }
     }
