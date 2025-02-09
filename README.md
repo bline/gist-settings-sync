@@ -48,17 +48,17 @@
 ### 2. Install the VSIX File
 
 - **code-server**:
-  1. Copy the `.vsix` file to your code-server environment.
-  2. Run the following command in your code-server terminal:
-     ```
-     code-server --install-extension <path-to-your-vsix>
-     ```
-  3. Restart code-server.
+1. Copy the `.vsix` file to your code-server environment.
+2. Run the following command in your code-server terminal:
+    ```
+    code-server --install-extension <path-to-your-vsix>
+    ```
+3. Restart code-server.
 
 - **VS Code**:
-  1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) to open the command palette.
-  2. Type “Extensions: Install from VSIX...” and select your `.vsix` file.
-  3. Reload or restart VS Code.
+1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) to open the command palette.
+2. Type “Extensions: Install from VSIX...” and select your `.vsix` file.
+3. Reload or restart VS Code.
 
 ---
 
@@ -68,7 +68,7 @@
    - For code-server, set the environment variable `GITHUB_TOKEN` to your personal access token.
    - For VS Code, after installing the extension, run any sync command and you will be prompted to provide your token if you haven’t already.
    - Configure the Gist ID in your VS Code settings (or code-server’s settings UI):
-     ```
+     ```json
      "gistSettingsSync.gistId": "YOUR_GIST_ID"
      ```
 
@@ -148,4 +148,4 @@ Please feel free to open issues or submit pull requests to improve this extensio
 
 If you have any questions or run into issues:
 - [Open an Issue on GitHub](https://github.com/bline/gist-settings-sync/issues)
-- Or email: [maintainer@example.com](mailto:scottbeck@gmail.com)
+- Or email: [scottbeck@gmail.com](mailto:scottbeck@gmail.com)

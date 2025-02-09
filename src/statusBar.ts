@@ -1,10 +1,9 @@
-import vscode from "./vscodeUtils";
+import vscode from 'vscode'
 
 let _statusBarItem: vscode.StatusBarItem | undefined
 
 // Global variable to store the last error message.
-export let lastError: string | undefined;
-
+export let lastError: string | undefined
 
 /**
  * Returns (and creates if needed) a status bar item.
@@ -19,13 +18,15 @@ export function getStatusBarItem(): vscode.StatusBarItem {
   return _statusBarItem
 }
 
-type StatusBarActions = 'syncUp' | 'syncDown' | 'syncUiState'
+type StatusBarActions = 'syncUp' | 'syncDown' | 'syncUiState' | 'setUiState'
 const statusBarMessages: Record<StatusBarActions, string> = {
-  'syncUp': 'Syncing Up...',
-  'syncDown': 'Syncing Down...',
-  'syncUiState': 'Syncing UI State...'
+  syncUp: 'Syncing Up...',
+  syncDown: 'Syncing Down...',
+  syncUiState: 'Syncing UI State...',
+  setUiState: 'Setting UI State...',
 }
 export function setStatusBarItemSyncing(command: StatusBarActions): void {
+  resetStatusBarItem()
   const statusBarItem = getStatusBarItem()
   statusBarItem.text = '$(sync~spin) ' + statusBarMessages[command]
   statusBarItem.show()

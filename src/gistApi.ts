@@ -1,6 +1,7 @@
-import { isCodeServer } from './globals'
-import { getConfig, SyncConfig } from './config'
-import vscode from './vscodeUtils'
+import vscode from 'vscode'
+
+import {SyncConfig, getConfig} from '@/config'
+import {isCodeServer} from '@/globals'
 
 export interface GistFile {
   filename: string
@@ -21,13 +22,13 @@ export interface Meta {
 
 /**
  * Given a GistFile, returns the content
- * 
+ *
  */
 export async function getGistFileContent(file: GistFile): Promise<string> {
   if (!file.truncated) return file.content
 
   const response: Response = await fetch(file.raw_url, {
-    method: 'GET'
+    method: 'GET',
   })
   if (!response.ok) {
     throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
@@ -53,7 +54,7 @@ export async function getGithubToken(context: vscode.ExtensionContext): Promise<
     return storedToken
   }
   const token: string | undefined = await vscode.window.showInputBox({
-    prompt: 'Enter your GitHub token with Gist permissions'
+    prompt: 'Enter your GitHub token with Gist permissions',
   })
   if (!token) {
     throw new Error('GitHub token not provided')
@@ -61,7 +62,6 @@ export async function getGithubToken(context: vscode.ExtensionContext): Promise<
   await context.secrets.store('GITHUB_TOKEN', token)
   return token
 }
-
 
 type CheckMetaSettingName = 'syncDownMetaCheckAction' | 'syncUpMetaCheckAction'
 
@@ -74,7 +74,10 @@ type CheckMetaSettingName = 'syncDownMetaCheckAction' | 'syncUpMetaCheckAction'
  * @param settingName
  * @returns Promise<boolean>
  */
-export async function checkMeta(meta: GistFile, settingName: CheckMetaSettingName): Promise<boolean> {
+export async function checkMeta(
+  meta: GistFile,
+  settingName: CheckMetaSettingName,
+): Promise<boolean> {
   const config = getConfig()
   const settings = vscode.workspace.getConfiguration('gistSettingsSync')
   const metaAction = config[settingName]
@@ -82,20 +85,18 @@ export async function checkMeta(meta: GistFile, settingName: CheckMetaSettingNam
   const remoteMeta = JSON.parse(metaContent) as Meta
   const localVscodeVersion = vscode.version
   if (remoteMeta.vscodeVersion !== localVscodeVersion) {
-    if (metaAction === "ask") {
+    if (metaAction === 'ask') {
       const choice = await vscode.window.showWarningMessage(
         'The metadata in the Gist does not match your current environment. What do you want to do?',
-        { modal: true },
+        {modal: true},
         'Sync Anyway (Remember my choice)',
         'Cancel (Remember my choice)',
         'Sync Anyway',
-        'Cancel'
+        'Cancel',
       )
       if (choice) {
         if (choice.includes('Remember')) {
-          await settings.update(
-            settingName,
-            choice.startsWith('Sync') ? 'sync' : 'cancel')
+          await settings.update(settingName, choice.startsWith('Sync') ? 'sync' : 'cancel')
         }
         if (choice.startsWith('Cancel')) {
           return false
@@ -108,8 +109,9 @@ export async function checkMeta(meta: GistFile, settingName: CheckMetaSettingNam
   return true
 }
 
-
-export async function fetchGists(context: vscode.ExtensionContext): Promise<Record<string, GistFile>> {
+export async function fetchGists(
+  context: vscode.ExtensionContext,
+): Promise<Record<string, GistFile>> {
   const token: string = await getGithubToken(context)
   const config: SyncConfig = getConfig()
   if (!config.gistId) {
@@ -120,17 +122,20 @@ export async function fetchGists(context: vscode.ExtensionContext): Promise<Reco
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github.v3+json'
-    }
+      Accept: 'application/vnd.github.v3+json',
+    },
   })
   if (!response.ok) {
     throw new Error(`GitHub API error: ${response.statusText}`)
   }
-  const gistData = await response.json() as { files: Record<string, GistFile> }
+  const gistData = (await response.json()) as {files: Record<string, GistFile>}
   return gistData.files as Record<string, GistFile>
 }
 
-export async function storeGists(context: vscode.ExtensionContext, files: Record<string, Pick<GistFile, 'content'>>): Promise<void> {
+export async function storeGists(
+  context: vscode.ExtensionContext,
+  files: Record<string, Pick<GistFile, 'content'>>,
+): Promise<void> {
   const config = getConfig()
   const token: string = await getGithubToken(context)
   if (!config.gistId) {
@@ -142,9 +147,9 @@ export async function storeGists(context: vscode.ExtensionContext, files: Record
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ files })
+    body: JSON.stringify({files}),
   })
   if (!response.ok) {
     throw new Error(`GitHub API error: ${response.statusText}`)

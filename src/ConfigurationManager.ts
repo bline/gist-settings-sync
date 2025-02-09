@@ -1,4 +1,4 @@
-import vscode from "vscode"
+import vscode from 'vscode'
 
 /**
  * Type definition for the actions to be taken when meta information conflicts.
@@ -6,7 +6,7 @@ import vscode from "vscode"
 export type MetaCheckAction = 'ask' | 'sync' | 'cancel'
 
 // Define the configuration properties with their types and default values
-const configurationProperties: Record<string, { defaultValue: any, type: string }> = {
+const configurationProperties: Record<string, { defaultValue: any; type: string }> = {
   /**
    * The GitHub Gist ID to sync settings to/from.
    */
@@ -62,7 +62,7 @@ const configurationProperties: Record<string, { defaultValue: any, type: string 
    * What to do when syncing down and the meta information for the current configuration conflicts
    * with what is stored in the Gist.
    */
-  syncDownMetaCheckAction: { defaultValue: 'ask', type: 'string' as 'string' } // Enforce type as 'string'
+  syncDownMetaCheckAction: { defaultValue: 'ask', type: 'string' as 'string' }, // Enforce type as 'string'
 }
 
 /**
@@ -99,7 +99,9 @@ export class ConfigurationManager {
   /**
    * The current configuration values.
    */
-  private current: { [key in ConfigurationKey]: ConfigurationValue } = {} as { [key in ConfigurationKey]: ConfigurationValue }
+  private current: { [key in ConfigurationKey]: ConfigurationValue } = {} as {
+    [key in ConfigurationKey]: ConfigurationValue
+  }
 
   /**
    * Constructor for the ConfigurationManager class.
@@ -117,7 +119,7 @@ export class ConfigurationManager {
     context.subscriptions.push(
       vscode.workspace.onDidChangeConfiguration((event) => {
         this.updateConfiguration(event)
-      })
+      }),
     )
   }
 
@@ -146,12 +148,12 @@ export class ConfigurationManager {
   }
 
   /**
- * Removes a listener for configuration changes.
- * @param key The configuration key.
- * @param listener The listener function to be removed.
- */
+   * Removes a listener for configuration changes.
+   * @param key The configuration key.
+   * @param listener The listener function to be removed.
+   */
   public removeListener(key: ConfigurationKey, listener: ConfigurationListener) {
-    this.listeners[key] = this.listeners[key].filter(l => l !== listener)
+    this.listeners[key] = this.listeners[key].filter((l) => l !== listener)
   }
 
   /**
@@ -169,6 +171,6 @@ export class ConfigurationManager {
    * @param newValue The new value of the configuration setting.
    */
   private notifyListeners(key: ConfigurationKey, newValue: ConfigurationValue) {
-    this.listeners[key].forEach(listener => listener(key, newValue))
+    this.listeners[key].forEach((listener) => listener(key, newValue))
   }
 }

@@ -1,21 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
-    "module": "commonjs",
-    "lib": ["es2019", "DOM"],
-    "outDir": "out",
-    "rootDir": "src",
-    "baseUrl": "src",
+    "target": "ES2022",
+    "lib": ["es2022", "DOM"],
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
     "strict": true,
     "noImplicitAny": true,
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "types": ["@types/vscode", "@types/node"],
+    "types": ["vscode", "node"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
+  "include": ["**/*.ts", "**/*.mts"],
   "exclude": [
     "node_modules",
     ".vscode-test",

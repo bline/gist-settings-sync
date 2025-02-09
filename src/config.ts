@@ -1,7 +1,8 @@
-import { isCodeServer } from './globals'
-import path from 'path'
+import vscode from 'vscode'
+
+import { isCodeServer } from '@/globals'
 import * as os from 'os'
-import vscode from './vscodeUtils'
+import path from 'path'
 
 export type MetaCheckAction = 'ask' | 'sync' | 'cancel'
 
@@ -36,8 +37,10 @@ export interface SyncConfig {
   // What to do when syncing down and the meta information for the current configuration conflicts
   // with what is stored in the Gist.
   syncDownMetaCheckAction: MetaCheckAction
+  // The keys that we sync from the UI state (IndexedDB on code-server, sqlite on vscode) into a
+  // uiState.json file to be exported to the Gist.
+  uiStateSyncKeys: string[]
 }
-
 
 /**
  * Reads the extension configuration.
@@ -56,8 +59,12 @@ export function getConfig(): SyncConfig {
     includeExtensions: config.get<boolean>('includeExtensions', true),
     userDataDir: config.get<string>('userDataDir', ''),
     uiStateSyncInterval: config.get<number>('uiStateSyncInterval', 10),
-    syncUpMetaCheckAction: config.get<string>('syncUpMetaCheckAction', 'ask') as MetaCheckAction,
-    syncDownMetaCheckAction: config.get<string>('syncDownMetaCheckAction', 'ask') as MetaCheckAction
+    syncUpMetaCheckAction: config.get<MetaCheckAction>('syncUpMetaCheckAction', 'ask'),
+    syncDownMetaCheckAction: config.get<MetaCheckAction>(
+      'syncDownMetaCheckAction',
+      'ask',
+    ),
+    uiStateSyncKeys: config.get<string[]>('uiStateSyncKeys', [])
   }
 }
 

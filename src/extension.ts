@@ -1,23 +1,26 @@
-import { syncDown, syncUp } from './sync'
-import { disposeStatusBarItem, getStatusBarItem, lastError } from './statusBar'
-import { getConfig, SyncConfig } from './config'
-import { disposeFrontendPanel, initFrontendWebview } from './webview'
-import { isCodeServer } from './globals'
-import vscode from './vscodeUtils'
+import vscode from 'vscode'
+
+import {isCodeServer} from './globals'
+import {disposeStatusBarItem, getStatusBarItem, lastError} from './statusBar'
+import {syncDown, syncUp} from './sync'
+import {SyncConfig, getConfig} from '@/config'
+import createSettingsApi from '@/settingsManager'
+import {disposeFrontendPanel, initFrontendWebview} from '@/webview'
 
 /**
  * Called when the extension is activated.
  */
 export function activate(context: vscode.ExtensionContext): void {
+  const settingsManager = createSettingsApi(context)
   context.subscriptions.push(
     vscode.commands.registerCommand('gistSettingsSync.syncUp', () => {
-      syncUp(context)
-    })
+      syncUp(context, settingsManager)
+    }),
   )
   context.subscriptions.push(
     vscode.commands.registerCommand('gistSettingsSync.syncDown', () => {
-      syncDown(context)
-    })
+      syncDown(context, settingsManager)
+    }),
   )
 
   // Register the command that shows error details.
@@ -28,12 +31,11 @@ export function activate(context: vscode.ExtensionContext): void {
       } else {
         vscode.window.showInformationMessage('No error details available.')
       }
-    })
+    }),
   )
 
   // Initialize the status bar item.
   getStatusBarItem()
-
 
   // For code–server: if UI state sync is enabled, initialize the hidden frontend webview.
   context.subscriptions.push(
@@ -46,7 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
           initFrontendWebview(context)
         }
       }
-    })
+    }),
   )
 }
 
