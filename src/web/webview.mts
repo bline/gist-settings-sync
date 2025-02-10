@@ -74,6 +74,7 @@ interface SetUiStateCommand {
  * the safe key is converted into a regular expression.
  *
  * @param key - The key to test.
+ * @param safeKeysToSync - List of user configured keys to extract
  * @returns true if the key is allowed.
  */
 function isSafeKey(key: string, safeKeysToSync: string[]): boolean {
