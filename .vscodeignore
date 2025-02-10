@@ -2,6 +2,8 @@ tests
 types
 !dist/
 !dist/node_modules/sqlite3/**
+!dist/node_modules/bindings/**
+!dist/node_modules/file-uri-to-path/**
 node_modules/**
 src/**
 

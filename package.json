@@ -127,12 +127,12 @@
     },
     "keybindings": [
       {
-        "command": "extension.syncUp",
+        "command": "gistSettingsSync.syncUp",
         "key": "ctrl+alt+u",
         "when": "editorTextFocus"
       },
       {
-        "command": "extension.syncDown",
+        "command": "gistSettingsSync.syncDown",
         "key": "ctrl+alt+d",
         "when": "editorTextFocus"
       }
@@ -202,7 +202,14 @@
     "build:webview:development": "esbuild --sourcemap=inline --outdir=dist/web --bundle --platform=browser src/web/webview.mts",
     "build:extension:production": "esbuild --minify --outdir=dist --bundle --platform=node --external:sqlite3 --external:vscode --external:http --external:fs --external:path --external:os src/extension.ts",
     "build:extension:development": "esbuild --sourcemap=inline --outdir=dist --bundle --platform=node --external:sqlite3 --external:vscode --external:http --external:fs --external:path --external:os src/extension.ts",
-    "build:finalize": "bash -c 'mkdir -p dist/node_modules/sqlite3 && cp -a node_modules/sqlite3/{lib,package.json,build} dist/node_modules/sqlite3/ && strip --strip-unneeded dist/node_modules/sqlite3/build/Release/node_sqlite3.node && upx dist/node_modules/sqlite3/build/Release/node_sqlite3.node'",
+    "build:finalize": "npm run build:copy && npm run build:optimize-sqlite3",
+    "build:optimize-sqlite3": "npm run build:strip-sqlite3 && npm run build:compress-sqlite3",
+    "build:strip-sqlite3": "if command -v strip >/dev/null 2>&1; then strip --strip-unneeded dist/node_modules/sqlite3/build/Release/node_sqlite3.node; else echo 'Warning: strip not found, skipping.'; fi",
+    "build:compress-sqlite3": "if command -v upx >/dev/null 2>&1; then upx dist/node_modules/sqlite3/build/Release/node_sqlite3.node; else echo 'Warning: upx not found, skipping.'; fi",
+    "build:copy": "npm run build:copy-sqlite3 && npm run build:copy-bindings && npm run build:copy-file-uri-to-path",
+    "build:copy-sqlite3": "bash -c 'mkdir -p dist/node_modules/sqlite3 && cp -a node_modules/sqlite3/{lib,package.json,build} dist/node_modules/sqlite3/'",
+    "build:copy-bindings": "mkdir -p dist/node_modules/bindings && cp -a node_modules/bindings/* dist/node_modules/bindings/",
+    "build:copy-file-uri-to-path": "mkdir -p dist/node_modules/file-uri-to-path && cp -a node_modules/file-uri-to-path/* dist/node_modules/file-uri-to-path/",
     "build:clean": "rm -rf dist/*",
     "package": "npm run package:production",
     "package:production": "npm run build && npm run package:vsce",
