@@ -78,25 +78,35 @@ async function initUiSync(context: vscode.ExtensionContext): Promise<void> {
  * @returns Promise<string> The html for the webview including the frontend javascript
  */
 async function getWebviewContent(context: vscode.ExtensionContext): Promise<string> {
-  const scriptUri: vscode.Uri = vscode.Uri.joinPath(
+  const scriptPathOnDisk: vscode.Uri = vscode.Uri.joinPath(
     context.extensionUri,
     'dist',
     'web',
     'webview.js',
   )
-  const scriptBytes: Uint8Array = await vscode.workspace.fs.readFile(scriptUri)
-  const scriptContent: string = scriptBytes.toString()
+  if (!_frontendPanel) {
+    return ''
+  }
+
+  // Convert the file URI to a URI that can be loaded in the webview.
+  const scriptUri: vscode.Uri = _frontendPanel.webview.asWebviewUri(scriptPathOnDisk)
+
+  // Create a Content Security Policy (CSP) that allows scripts only from your extension.
+  const csp: string = `
+    default-src 'none';
+    script-src ${_frontendPanel.webview.cspSource};
+    style-src ${_frontendPanel.webview.cspSource} 'unsafe-inline';
+  `
 
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="${csp}">
     <title>Gist Settings Sync Frontend</title>
   </head>
   <body style="display: none">
-    <script>
-      ${scriptContent}
-    </script>
+    <script src="${scriptUri}"></script>
   </body>
 </html>`
 }
