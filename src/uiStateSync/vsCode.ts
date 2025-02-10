@@ -7,7 +7,6 @@ import {isNodeError} from '@/nodeUtils'
 import {ExtractedData, UIStateData, UISync} from '@/uiStateSync/types'
 import fs from 'fs/promises'
 import path from 'path'
-import {URL} from 'url'
 
 /* --------------------------------------------------------------------------
    Logging Helper
@@ -62,8 +61,8 @@ interface ExtractDatabaseResult {
  */
 function getWorkspaceName(selectedRoot: string): string | null {
   try {
-    const url = new URL(selectedRoot)
-    const parts = url.pathname.split('/')
+    const pathUrl = new URL(selectedRoot)
+    const parts = pathUrl.pathname.split('/')
     const vscodeIndex = parts.indexOf('.vscode')
     if (vscodeIndex > 0) {
       return parts[vscodeIndex - 1]
