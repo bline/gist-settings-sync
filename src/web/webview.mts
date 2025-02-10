@@ -207,7 +207,7 @@ async function extractDatabase(
 /**
  * Aggregates safe UI state data from all databases and sends it to the extension host.
  */
-async function syncUIState(cmd: SyncUiStateCommand): Promise<void> {
+async function exportUiState(cmd: SyncUiStateCommand): Promise<void> {
   vscode.postMessage({command: 'gistSettingsSync.syncUiStateStart'})
   const exportedData: ExtractedData = {}
   try {
@@ -256,7 +256,7 @@ async function syncUIState(cmd: SyncUiStateCommand): Promise<void> {
  *
  * @param cmd - The new UI state data and settings.
  */
-async function setUIState(cmd: SetUiStateCommand): Promise<void> {
+async function importUiState(cmd: SetUiStateCommand): Promise<void> {
   vscode.postMessage({command: 'gistSettingsSync.setUiStateStart'})
   const dbNames = await getAllUIStateDatabases()
   const newState: ExtractedData = cmd.uiState
@@ -322,15 +322,15 @@ window.addEventListener('message', async (event: MessageEvent<unknown>): Promise
   const message = event.data as {command?: string; data?: unknown} | null
   if (!message) return
   switch (message.command) {
-    case 'gistSettingsSync.setUiState':
+    case 'gistSettingsSync.importUiState':
       try {
         const setCmd: SetUiStateCommand =
           typeof message.data === 'string'
             ? JSON.parse(message.data)
             : (message.data as SetUiStateCommand)
-        await setUIState(setCmd)
+        await importUiState(setCmd)
       } catch (err) {
-        console.error('Error in setUiState:', err)
+        console.error('Error in importUiState:', err)
         vscode.postMessage({
           command: 'gistSettingsSync.syncUiState',
           error: err instanceof Error ? err.message : String(err),
@@ -345,12 +345,14 @@ window.addEventListener('message', async (event: MessageEvent<unknown>): Promise
       /**
        * Run an initial UI state sync.
        */
-      syncUIState(syncCmd).catch((err: unknown) => console.error('Error during initial sync:', err))
+      exportUiState(syncCmd).catch((err: unknown) =>
+        console.error('Error during initial sync:', err),
+      )
       /**
        * Run on configurable timer
        */
       syncTimerId = window.setInterval(() => {
-        syncUIState(syncCmd).catch((err: unknown) =>
+        exportUiState(syncCmd).catch((err: unknown) =>
           console.error('Error during periodic sync:', err),
         )
       }, syncCmd.settings.syncIntervalMillis)

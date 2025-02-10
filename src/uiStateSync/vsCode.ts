@@ -1,10 +1,10 @@
 import vscode from 'vscode'
 
 import {SyncConfig, getConfig, getUserDataDir} from '@/config'
-import {readFileIfExists, writeFileEnsureDir} from '@/fileUtils'
+import {writeFileEnsureDir} from '@/fileUtils'
 import {Database, OPEN_READONLY, OPEN_READWRITE} from '@/lib/sqlite3'
 import {isNodeError} from '@/nodeUtils'
-import {UISync} from '@/uiStateSync/types'
+import {ExtractedData, UIStateData, UISync} from '@/uiStateSync/types'
 import fs from 'fs/promises'
 import path from 'path'
 import {URL} from 'url'
@@ -45,21 +45,6 @@ const SELECT_ALL_KEYS_QUERY = (tableName: string) => `SELECT key, value FROM ${t
 /* --------------------------------------------------------------------------
    Types
 -------------------------------------------------------------------------- */
-
-/** Mapping of keys to values from a SQLite table. */
-interface UIStateData {
-  [key: string]: unknown
-}
-
-/** Mapping of object store names to UI state data. */
-interface WorkspaceData {
-  [storeName: string]: UIStateData
-}
-
-/** Complete UI state data grouped by workspace name. */
-interface ExtractedData {
-  [workspace: string]: WorkspaceData
-}
 
 /** Result returned when extracting data from a single database. */
 interface ExtractDatabaseResult {
@@ -234,7 +219,7 @@ async function updateTable(
  * Syncs the UI state by extracting data from all UI state databases and writing
  * the consolidated data to a JSON file.
  */
-async function syncUIState(): Promise<void> {
+async function exportUiState(): Promise<void> {
   const exportedData: ExtractedData = {}
   try {
     const dbPaths = await getAllUIStateDatabases()
@@ -280,30 +265,8 @@ async function syncUIState(): Promise<void> {
  * Reads the exported UI state JSON file and for each database, updates/inserts
  * key/value pairs using a single transaction per table.
  */
-export async function setUIState(): Promise<void> {
-  const userDataDir = getUserDataDir()
+export async function importUiState(newState: ExtractedData): Promise<void> {
   const dbPaths = await getAllUIStateDatabases()
-  const uiStatePath = path.join(userDataDir, 'uiState.json')
-  let stateData: string | null = null
-
-  try {
-    await fs.access(uiStatePath)
-    stateData = await readFileIfExists(uiStatePath)
-    if (!stateData) {
-      logger.warn(`Failed to read '${uiStatePath}'`)
-      return
-    }
-  } catch (error) {
-    if (isNodeError(error) && error.code === 'ENOENT') {
-      logger.info(`File missing: '${uiStatePath}'`)
-      return
-    } else {
-      logger.error(`Failed to access '${uiStatePath}'`, error)
-      return
-    }
-  }
-
-  const newState: ExtractedData = JSON.parse(stateData)
 
   // For each database, update tables with new UI state.
   for (const dbPath of dbPaths) {
@@ -337,7 +300,7 @@ async function startUiSync(): Promise<void> {
   const config = getConfig()
   const syncIntervalMillis = config.uiStateSyncInterval * 60 * 1000
   syncTimer = setInterval(() => {
-    syncUIState()
+    exportUiState()
   }, syncIntervalMillis)
   logger.info(`UI state sync started with interval ${syncIntervalMillis}ms`)
 }
@@ -395,6 +358,7 @@ export function disposeUiSync(): void {
    Exported VS Code UI Sync API
 -------------------------------------------------------------------------- */
 const vsCodeUiSync: UISync = {
+  importUiState,
   initUiSync,
   stopUiSync,
   startUiSync,

@@ -3,7 +3,7 @@ import vscode from 'vscode'
 import {SyncConfig, getConfig, getUserDataDir} from '@/config'
 import {writeFileEnsureDir} from '@/fileUtils'
 import {handleError, resetStatusBarItem, setStatusBarItemSyncing} from '@/statusBar'
-import {UISync} from '@/uiStateSync/types'
+import {ExtractedData, UISync} from '@/uiStateSync/types'
 import path from 'path'
 
 interface WebviewMessage {
@@ -181,7 +181,21 @@ async function initFrontendWebview(context: vscode.ExtensionContext): Promise<vo
   })
 }
 
+async function importUiState(newState: ExtractedData): Promise<void> {
+  if (!_frontendPanel) {
+    return
+  }
+  const config = getConfig()
+  const safeKeysToSync = config.uiStateSyncKeys
+  const syncIntervalMillis = config.uiStateSyncInterval * 60 * 1000
+  await _frontendPanel.webview.postMessage({
+    command: 'gistSettingsSync.importUiState',
+    data: {settings: {syncIntervalMillis, safeKeysToSync}, uiState: newState},
+  })
+}
+
 const codeServerUiSync: UISync = {
+  importUiState,
   initUiSync,
   stopUiSync,
   startUiSync,
