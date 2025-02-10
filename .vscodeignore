@@ -1,2 +1,21 @@
 tests
 types
+!dist/
+!dist/node_modules/sqlite3/**
+node_modules/**
+src/**
+
+# Exclude config and dev-related files
+.gitignore
+tsconfig.json
+tsconfig.test.json
+jest.config.ts
+eslint.config.ts
+.vscode/
+
+# Exclude TypeScript declaration files
+**/*.d.ts
+
+# Optionally exclude any test files
+**/test/**
+**/*.test.js

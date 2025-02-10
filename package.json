@@ -8,11 +8,11 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.syncUp",
+        "command": "gistSettingsSync.syncUp",
         "title": "Sync Settings Up"
       },
       {
-        "command": "extension.syncDown",
+        "command": "gistSettingsSync.syncDown",
         "title": "Sync Settings Down"
       }
     ],
@@ -139,6 +139,7 @@
     ]
   },
   "dependencies": {
+    "sqlite3": "^5.1.7",
     "idb": "^8.0.2"
   },
   "description": "Sync settings up and down to a GitHub Gist (supports code–server and VS Code).",
@@ -177,18 +178,17 @@
     "mocha": "^10.0.0",
     "prettier": "^3.4.2",
     "prettier-plugin-packagejson": "^2.5.8",
-    "sqlite3": "^5.1.7",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.23.0"
   },
-  "displayName": "Settings Sync",
+  "displayName": "Gist Settings Sync",
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.96.0"
   },
   "main": "./dist/extension.js",
-  "name": "settings-sync",
+  "name": "gist-settings-sync",
   "publisher": "ScottBeck",
   "repository": {
     "type": "GitHub",
@@ -196,10 +196,21 @@
   },
   "scripts": {
     "build": "npm run build:production",
-    "build:production": "esbuild src/extension.ts --minify --outdir=dist --bundle --platform=node --external:vscode --external:http --external:fs --external:path --external:os src/web/webview.mts --bundle --platform=browser --minify",
-    "build:development": "esbuild src/extension.ts --sourcemap --outdir=dist --bundle --platform=node --external:vscode --external:http --external:fs --external:path --external:os src/web/webview.mts --bundle --platform=browser --sourcemap",
-    "package": "vsce package --no-yarn",
-    "test": "mocha --recursive"
+    "build:production": "npm run build:clean && npm run build:extension:production && npm run build:webview:production",
+    "build:development": "npm run build:clean && npm run build:extension:development && npm run build:webview:development",
+    "build:webview:production": "esbuild --minify --outdir=dist/web --bundle --platform=browser --minify src/web/webview.mts",
+    "build:webview:development": "esbuild --sourcemap=inline --outdir=dist/web --bundle --platform=browser src/web/webview.mts",
+    "build:extension:production": "esbuild --minify --outdir=dist --bundle --platform=node --external:sqlite3 --external:vscode --external:http --external:fs --external:path --external:os src/extension.ts",
+    "build:extension:development": "esbuild --sourcemap=inline --outdir=dist --bundle --platform=node --external:sqlite3 --external:vscode --external:http --external:fs --external:path --external:os src/extension.ts",
+    "build:finalize": "bash -c 'mkdir -p dist/node_modules/sqlite3 && cp -a node_modules/sqlite3/{lib,package.json,build} dist/node_modules/sqlite3/ && strip --strip-unneeded dist/node_modules/sqlite3/build/Release/node_sqlite3.node && upx dist/node_modules/sqlite3/build/Release/node_sqlite3.node'",
+    "build:clean": "rm -rf dist/*",
+    "package": "npm run package:production",
+    "package:production": "npm run build && npm run package:vsce",
+    "package:development": "npm run build:development && npm run package:vsce",
+    "package:vsce": "vsce package --no-yarn",
+    "test": "mocha --recursive",
+    "postbuild": "npm run build:finalize",
+    "postbuild:development": "npm run build:finalize"
   },
   "type": "commonjs",
   "version": "0.0.1"
