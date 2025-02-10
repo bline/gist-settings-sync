@@ -2,11 +2,11 @@ import vscode from 'vscode'
 
 import {SyncConfig, getConfig, getUserDataDir} from '@/config'
 import {writeFileEnsureDir} from '@/fileUtils'
-import {isCodeServer} from '@/globals'
 import {handleError, resetStatusBarItem, setStatusBarItemSyncing} from '@/statusBar'
+import {UISync} from '@/uiStateSync/types'
 import path from 'path'
 
-export interface WebviewMessage {
+interface WebviewMessage {
   command: string
   uiState?: unknown
   error?: string
@@ -14,15 +14,42 @@ export interface WebviewMessage {
 
 let _frontendPanel: vscode.WebviewPanel | undefined
 
-export async function initWebviewPanel(context: vscode.ExtensionContext): Promise<void> {
+async function stopUiSync(): Promise<void> {
+  const config: SyncConfig = getConfig()
+  if (_frontendPanel && config.includeUIState) {
+    await _frontendPanel.webview.postMessage({command: 'gistSettingsSync.stopSyncUiState'})
+  }
+}
+
+async function startUiSync(): Promise<void> {
+  const config: SyncConfig = getConfig()
+  if (_frontendPanel && config.includeUIState) {
+    _frontendPanel.webview.postMessage({
+      command: 'gistSettingsSync.syncUiState',
+      data: {
+        settings: {
+          syncIntervalMillis: config.uiStateSyncInterval * 60 * 1000,
+          safeKeysToSync: config.uiStateSyncKeys,
+        },
+      },
+    })
+  }
+}
+
+async function restartUiSync(): Promise<void> {
+  await stopUiSync()
+  await startUiSync()
+}
+
+async function initUiSync(context: vscode.ExtensionContext): Promise<void> {
   const config: SyncConfig = getConfig()
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration('gistSettingsSync.includeUIState')) {
-        const config: SyncConfig = getConfig()
+        const config = getConfig()
         if (!config.includeUIState) {
-          disposeFrontendPanel()
-        } else if (config.includeUIState && isCodeServer) {
+          disposeUiSync()
+        } else if (config.includeUIState) {
           initFrontendWebview(context)
         }
       }
@@ -30,12 +57,13 @@ export async function initWebviewPanel(context: vscode.ExtensionContext): Promis
         e.affectsConfiguration('gistSettingsSync.uiStateSyncKeys') ||
         e.affectsConfiguration('gistSettingsSync.uiStateSyncInterval')
       ) {
-        // do stuff
+        restartUiSync()
       }
     }),
   )
   if (config.includeUIState) {
-    initFrontendWebview(context)
+    await initFrontendWebview(context)
+    startUiSync()
   }
 }
 
@@ -47,14 +75,15 @@ export async function initWebviewPanel(context: vscode.ExtensionContext): Promis
  * that updates each database’s object stores with the provided new state.
  *
  * @param context vscode context
- * @param syncIntervalMillis The sync interval (in milliseconds) is injected into the page
  * @returns Promise<string> The html for the webview including the frontend javascript
  */
-export async function getWebviewContent(
-  context: vscode.ExtensionContext,
-  syncIntervalMillis: number,
-): Promise<string> {
-  const scriptUri: vscode.Uri = vscode.Uri.joinPath(context.extensionUri, 'web', 'webview.js')
+async function getWebviewContent(context: vscode.ExtensionContext): Promise<string> {
+  const scriptUri: vscode.Uri = vscode.Uri.joinPath(
+    context.extensionUri,
+    'dist',
+    'web',
+    'webview.js',
+  )
   const scriptBytes: Uint8Array = await vscode.workspace.fs.readFile(scriptUri)
   const scriptContent: string = scriptBytes.toString()
 
@@ -66,28 +95,13 @@ export async function getWebviewContent(
   </head>
   <body style="display: none">
     <script>
-      // Inject the sync interval as a global variable.
-      window.syncIntervalMillis = ${syncIntervalMillis}
-    </script>
-    <script>
       ${scriptContent}
     </script>
   </body>
 </html>`
 }
 
-export async function getFrontendPanel(
-  context: vscode.ExtensionContext,
-): Promise<vscode.WebviewPanel> {
-  if (_frontendPanel) {
-    return _frontendPanel
-  }
-  await initFrontendWebview(context)
-
-  return _frontendPanel!
-}
-
-export function disposeFrontendPanel(): void {
+export function disposeUiSync(): void {
   if (_frontendPanel) {
     _frontendPanel.dispose()
     _frontendPanel = undefined
@@ -102,23 +116,32 @@ export function disposeFrontendPanel(): void {
  * @param context The vscode context
  * @returns Promise<void>
  */
-export async function initFrontendWebview(context: vscode.ExtensionContext): Promise<void> {
+async function initFrontendWebview(context: vscode.ExtensionContext): Promise<void> {
   if (_frontendPanel) {
     return
   }
-  const config: SyncConfig = getConfig()
-  const syncIntervalMillis: number = config.uiStateSyncInterval * 60 * 1000
   _frontendPanel = vscode.window.createWebviewPanel(
     'gistSettingsSyncFrontend',
     'Gist Settings Sync Frontend',
     {viewColumn: vscode.ViewColumn.Beside, preserveFocus: true},
     {enableScripts: true, retainContextWhenHidden: true},
   )
-  _frontendPanel.webview.html = await getWebviewContent(context, syncIntervalMillis)
+  _frontendPanel.webview.html = await getWebviewContent(context)
   _frontendPanel.webview.onDidReceiveMessage((message: WebviewMessage) => {
     if (message?.command) {
       const cmd = message.command
       switch (cmd) {
+        case 'gistSettingsSync.setUiStateStart':
+          setStatusBarItemSyncing('setUiState')
+          break
+        case 'gistSettingsSync.setUiStateFinish':
+          if (message.error) {
+            console.error('Error setting UI state:', message.error)
+            handleError('setUiState', new Error(message.error))
+          } else {
+            resetStatusBarItem()
+          }
+          break
         case 'gistSettingsSync.syncUiStateStart':
           setStatusBarItemSyncing('syncUiState')
           break
@@ -147,3 +170,13 @@ export async function initFrontendWebview(context: vscode.ExtensionContext): Pro
     }
   })
 }
+
+const codeServerUiSync: UISync = {
+  initUiSync,
+  stopUiSync,
+  startUiSync,
+  restartUiSync,
+  disposeUiSync,
+}
+
+export default codeServerUiSync

@@ -3,9 +3,9 @@ import vscode from 'vscode'
 import {isCodeServer} from './globals'
 import {disposeStatusBarItem, getStatusBarItem, lastError} from './statusBar'
 import {syncDown, syncUp} from './sync'
-import {SyncConfig, getConfig} from '@/config'
 import createSettingsApi from '@/settingsManager'
-import {disposeFrontendPanel, initFrontendWebview} from '@/webview'
+import codeServerUiSync from '@/uiStateSync/codeServer'
+import vsCodeUiSync from '@/uiStateSync/vsCode'
 
 /**
  * Called when the extension is activated.
@@ -37,25 +37,15 @@ export function activate(context: vscode.ExtensionContext): void {
   // Initialize the status bar item.
   getStatusBarItem()
 
-  // For code–server: if UI state sync is enabled, initialize the hidden frontend webview.
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration('gistSettingsSync.includeUIState')) {
-        const config: SyncConfig = getConfig()
-        if (!config.includeUIState) {
-          disposeFrontendPanel()
-        } else if (config.includeUIState && isCodeServer) {
-          initFrontendWebview(context)
-        }
-      }
-    }),
-  )
+  const uiSync = isCodeServer ? codeServerUiSync : vsCodeUiSync
+  uiSync.initUiSync(context)
 }
 
 /**
  * Called when the extension is deactivated.
  */
 export function deactivate(): void {
+  const uiSync = isCodeServer ? codeServerUiSync : vsCodeUiSync
   disposeStatusBarItem()
-  disposeFrontendPanel()
+  uiSync.disposeUiSync()
 }

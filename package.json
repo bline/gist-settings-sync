@@ -1,24 +1,10 @@
 {
-  "name": "settings-sync",
-  "displayName": "Settings Sync",
-  "description": "Sync settings up and down to a GitHub Gist (supports code–server and VS Code).",
-  "version": "0.0.1",
-  "publisher": "ScottBeck",
-  "type": "commonjs",
-  "repository": {
-    "type": "GitHub",
-    "url": "https://github.com/bline/gist-settings-sync.git"
-  },
-  "engines": {
-    "vscode": "^1.80.0"
-  },
-  "categories": [
-    "Other"
-  ],
   "activationEvents": [
     "onWindowFocus"
   ],
-  "main": "./dist/extension.js",
+  "categories": [
+    "Other"
+  ],
   "contributes": {
     "commands": [
       {
@@ -30,103 +16,79 @@
         "title": "Sync Settings Down"
       }
     ],
-    "keybindings": [
-      {
-        "command": "extension.syncUp",
-        "key": "ctrl+alt+u",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "extension.syncDown",
-        "key": "ctrl+alt+d",
-        "when": "editorTextFocus"
-      }
-    ],
     "configuration": {
-      "type": "object",
-      "title": "Settings Sync Configuration",
       "properties": {
-        "gistSettingsSync.gistId": {
-          "type": "string",
-          "default": "",
-          "description": "The GitHub Gist ID to sync settings to/from."
-        },
         "gistSettingsSync.cron": {
-          "type": "string",
           "default": "",
-          "description": "Cron expression for automatic sync up to the Gist (e.g. \"0 * * * *\" for every hour). Leave empty to disable."
+          "description": "Cron expression for automatic sync up to the Gist (e.g. \"0 * * * *\" for every hour). Leave empty to disable.",
+          "type": "string"
         },
-        "gistSettingsSync.includeSettings": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include user settings in sync."
-        },
-        "gistSettingsSync.includeKeybindings": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include keyboard shortcuts in sync."
-        },
-        "gistSettingsSync.includeSnippets": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include user snippets in sync."
-        },
-        "gistSettingsSync.includeTasks": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include user tasks in sync."
-        },
-        "gistSettingsSync.includeUIState": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include UI state in sync."
-        },
-        "gistSettingsSync.includeProfiles": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include profiles in sync."
+        "gistSettingsSync.gistId": {
+          "default": "",
+          "description": "The GitHub Gist ID to sync settings to/from.",
+          "type": "string"
         },
         "gistSettingsSync.includeExtensions": {
-          "type": "boolean",
           "default": true,
-          "description": "Include list of extensions in sync and auto–install missing ones."
+          "description": "Include list of extensions in sync and auto–install missing ones.",
+          "type": "boolean"
         },
-        "gistSettingsSync.userDataDir": {
-          "type": "string",
-          "default": "",
-          "description": "Path to the user data directory (e.g. where settings.json is stored). Leave empty for default."
+        "gistSettingsSync.includeKeybindings": {
+          "default": true,
+          "description": "Include keyboard shortcuts in sync.",
+          "type": "boolean"
         },
-        "gistSettingsSync.uiStateSyncInterval": {
-          "type": "number",
-          "default": "10",
-          "description": "The number of minutes between UI syncs in code-server. Code Server stores UI State in IndexedDB in the frontend. This is how often we sync that data to the backend."
+        "gistSettingsSync.includeProfiles": {
+          "default": true,
+          "description": "Include profiles in sync.",
+          "type": "boolean"
         },
-        "gistSettingsSync.syncUpMetaCheckAction": {
-          "type": "string",
-          "enum": [
-            "ask",
-            "sync",
-            "canel"
-          ],
-          "default": "ask",
-          "description": "What to do when syncing up and the meta information for the current configuration conflicts with what is stored in the Gist."
+        "gistSettingsSync.includeSettings": {
+          "default": true,
+          "description": "Include user settings in sync.",
+          "type": "boolean"
+        },
+        "gistSettingsSync.includeSnippets": {
+          "default": true,
+          "description": "Include user snippets in sync.",
+          "type": "boolean"
+        },
+        "gistSettingsSync.includeTasks": {
+          "default": true,
+          "description": "Include user tasks in sync.",
+          "type": "boolean"
+        },
+        "gistSettingsSync.includeUIState": {
+          "default": true,
+          "description": "Include UI state in sync.",
+          "type": "boolean"
         },
         "gistSettingsSync.syncDownMetaCheckAction": {
-          "type": "string",
+          "default": "ask",
+          "description": "What to do when syncing down and the meta information for the current configuration conflicts with what is stored in the Gist.",
           "enum": [
             "ask",
             "sync",
             "canel"
           ],
+          "type": "string"
+        },
+        "gistSettingsSync.syncUpMetaCheckAction": {
           "default": "ask",
-          "description": "What to do when syncing down and the meta information for the current configuration conflicts with what is stored in the Gist."
+          "description": "What to do when syncing up and the meta information for the current configuration conflicts with what is stored in the Gist.",
+          "enum": [
+            "ask",
+            "sync",
+            "canel"
+          ],
+          "type": "string"
+        },
+        "gistSettingsSync.uiStateSyncInterval": {
+          "default": "10",
+          "description": "The number of minutes between UI syncs in code-server. Code Server stores UI State in IndexedDB in the frontend. This is how often we sync that data to the backend.",
+          "type": "number"
         },
         "gistSettingsSync.uiStateSyncKeys": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of UI state keys to sync from IndexedDB on code-server and workspace sqlite database on vscode. Any `*` will match any section but not multiple sections, e.g. `*` match `[^.]*`.",
           "default": [
             "workbench.view.search.state",
             "workbench.panel.markers",
@@ -147,27 +109,51 @@
             "workbench.view.extension.*.state",
             "workbench.scm.views.state",
             "workbench.explorer.views.state"
-          ]
+          ],
+          "description": "A list of UI state keys to sync from IndexedDB on code-server and workspace sqlite database on vscode. Any `*` will match any section but not multiple sections, e.g. `*` match `[^.]*`.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "gistSettingsSync.userDataDir": {
+          "default": "",
+          "description": "Path to the user data directory (e.g. where settings.json is stored). Leave empty for default.",
+          "type": "string"
         }
+      },
+      "title": "Settings Sync Configuration",
+      "type": "object"
+    },
+    "keybindings": [
+      {
+        "command": "extension.syncUp",
+        "key": "ctrl+alt+u",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.syncDown",
+        "key": "ctrl+alt+d",
+        "when": "editorTextFocus"
       }
-    }
+    ]
   },
-  "scripts": {
-    "build": "esbuild src/extension.ts --outdir=dist --bundle --platform=node --external:vscode --external:http --external:fs --external:path --external:os src/web/webview.mts --bundle --platform=browser",
-    "package": "vsce package --no-yarn",
-    "test": "mocha --recursive"
+  "dependencies": {
+    "idb": "^8.0.2"
   },
+  "description": "Sync settings up and down to a GitHub Gist (supports code–server and VS Code).",
   "devDependencies": {
     "@eslint/js": "^9.20.0",
     "@eslint/json": "^0.10.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/chai": "^4.3.0",
-    "@types/eslint__eslintrc": "^2.1.2",
     "@types/eslint-config-prettier": "^6.11.3",
+    "@types/eslint__eslintrc": "^2.1.2",
     "@types/jest": "^29.5.14",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.19.75",
     "@types/node-fetch": "^2.6.2",
+    "@types/sqlite3": "^3.1.11",
     "@types/vscode": "^1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.23.0",
     "@typescript-eslint/parser": "^8.23.0",
@@ -191,12 +177,30 @@
     "mocha": "^10.0.0",
     "prettier": "^3.4.2",
     "prettier-plugin-packagejson": "^2.5.8",
+    "sqlite3": "^5.1.7",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.23.0"
   },
-  "dependencies": {
-    "idb": "^8.0.2"
-  }
+  "displayName": "Settings Sync",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "main": "./dist/extension.js",
+  "name": "settings-sync",
+  "publisher": "ScottBeck",
+  "repository": {
+    "type": "GitHub",
+    "url": "https://github.com/bline/gist-settings-sync.git"
+  },
+  "scripts": {
+    "build": "npm run build:production",
+    "build:production": "esbuild src/extension.ts --minify --outdir=dist --bundle --platform=node --external:vscode --external:http --external:fs --external:path --external:os src/web/webview.mts --bundle --platform=browser --minify",
+    "build:development": "esbuild src/extension.ts --sourcemap --outdir=dist --bundle --platform=node --external:vscode --external:http --external:fs --external:path --external:os src/web/webview.mts --bundle --platform=browser --sourcemap",
+    "package": "vsce package --no-yarn",
+    "test": "mocha --recursive"
+  },
+  "type": "commonjs",
+  "version": "0.0.1"
 }
